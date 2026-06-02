@@ -1,0 +1,189 @@
+{
+  "config": {
+    "RECORD_SECONDS": 1200,
+    "FRAME_RATE": 30,
+    "MAX_QUESTIONS": 10,
+    "AI_ANALYSIS": {
+      "facial_analysis": true,
+      "voice_analysis": true,
+      "content_analysis": true,
+      "behavioral_analysis": true,
+      "confidence_scoring": true,
+      "stress_detection": true,
+      "communication_assessment": true
+    },
+    "ADVANCED_FEATURES": {
+      "real_time_feedback": true,
+      "adaptive_questioning": true,
+      "personality_assessment": true,
+      "skill_gap_analysis": true,
+      "improvement_suggestions": true,
+      "mock_interview_scenarios": true
+    }
+  },
+  "questions": [
+    {
+      "id": 1,
+      "type": "introduction",
+      "question": "Tell me about yourself and your professional background",
+      "keywords": [
+        "experience",
+        "background",
+        "skills",
+        "education",
+        "career",
+        "expertise"
+      ],
+      "follow_up": "What specific achievements are you most proud of?",
+      "difficulty": "easy",
+      "expected_duration": 120
+    },
+    {
+      "id": 2,
+      "type": "behavioral",
+      "question": "Describe a challenging situation at work and how you handled it",
+      "keywords": [
+        "challenge",
+        "problem",
+        "solution",
+        "approach",
+        "result",
+        "learn",
+        "overcome"
+      ],
+      "follow_up": "What would you do differently if faced with a similar situation?",
+      "difficulty": "medium",
+      "expected_duration": 150
+    },
+    {
+      "id": 3,
+      "type": "technical",
+      "question": "Walk me through your technical expertise and preferred technologies",
+      "keywords": [
+        "technology",
+        "programming",
+        "framework",
+        "database",
+        "tools",
+        "methodology"
+      ],
+      "follow_up": "How do you stay updated with the latest technological trends?",
+      "difficulty": "medium",
+      "expected_duration": 180
+    },
+    {
+      "id": 4,
+      "type": "problem_solving",
+      "question": "How do you approach complex problem-solving in your work?",
+      "keywords": [
+        "analysis",
+        "strategy",
+        "methodology",
+        "process",
+        "decision",
+        "evaluation"
+      ],
+      "follow_up": "Can you give me a specific example of a complex problem you solved?",
+      "difficulty": "hard",
+      "expected_duration": 200
+    },
+    {
+      "id": 5,
+      "type": "leadership",
+      "question": "Tell me about a time when you had to lead a team or project",
+      "keywords": [
+        "leadership",
+        "team",
+        "management",
+        "delegation",
+        "motivation",
+        "communication"
+      ],
+      "follow_up": "How do you handle conflicts within your team?",
+      "difficulty": "hard",
+      "expected_duration": 180
+    },
+    {
+      "id": 6,
+      "type": "adaptability",
+      "question": "Describe how you handle change and adapt to new situations",
+      "keywords": [
+        "adapt",
+        "change",
+        "flexibility",
+        "learning",
+        "adjustment",
+        "innovation"
+      ],
+      "follow_up": "What's the biggest change you've had to adapt to professionally?",
+      "difficulty": "medium",
+      "expected_duration": 120
+    },
+    {
+      "id": 7,
+      "type": "communication",
+      "question": "How do you communicate complex ideas to non-technical stakeholders?",
+      "keywords": [
+        "communication",
+        "explanation",
+        "stakeholder",
+        "clarity",
+        "understanding",
+        "presentation"
+      ],
+      "follow_up": "Can you give me an example of when this skill was crucial?",
+      "difficulty": "medium",
+      "expected_duration": 150
+    },
+    {
+      "id": 8,
+      "type": "goals",
+      "question": "What are your career goals and how does this position align with them?",
+      "keywords": [
+        "goals",
+        "career",
+        "future",
+        "growth",
+        "development",
+        "ambition",
+        "alignment"
+      ],
+      "follow_up": "Where do you see yourself in 5 years?",
+      "difficulty": "easy",
+      "expected_duration": 120
+    },
+    {
+      "id": 9,
+      "type": "strengths_weaknesses",
+      "question": "What are your greatest strengths and areas for improvement?",
+      "keywords": [
+        "strength",
+        "weakness",
+        "improvement",
+        "development",
+        "self-awareness",
+        "growth"
+      ],
+      "follow_up": "How are you working on addressing your areas for improvement?",
+      "difficulty": "medium",
+      "expected_duration": 150
+    },
+    {
+      "id": 10,
+      "type": "company_fit",
+      "question": "Why are you interested in this role and our company?",
+      "keywords": [
+        "interest",
+        "motivation",
+        "company",
+        "role",
+        "fit",
+        "research",
+        "passion"
+      ],
+      "follow_up": "What do you know about our company culture and values?",
+      "difficulty": "easy",
+      "expected_duration": 120
+    }
+  ]
+}

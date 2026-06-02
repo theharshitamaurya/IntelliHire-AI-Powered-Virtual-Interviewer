@@ -142,7 +142,15 @@ Expected output includes:
 
 ## Visuals
 
+### System diagrams
+
 ![Architecture Diagram](images/architecture.png)
+![Deployment Diagram](images/deploayment%20diagram.jpeg)
+![Use Case Diagram](images/use-case%20diagram.jpeg)
+![Tech Stack](images/tech%20stack.jpeg)
+
+### Product screenshots
+
 ![Home Page](images/HomePage.png)
 ![Practice Drill](images/PracticeDrill.png)
 ![Grounded JD Analysis](images/GroundedJDAnalysis.png)
