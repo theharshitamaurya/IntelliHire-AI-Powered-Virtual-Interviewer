@@ -1,7 +1,7 @@
 export const AppTab = {
   Home: "home",
   Practice: "practice",
-  JDMode: "jd",
+  JDMode: "jdmode",
   Interview: "interview",
   Analytics: "analytics",
 };

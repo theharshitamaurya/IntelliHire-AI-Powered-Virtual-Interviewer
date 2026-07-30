@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import APIService from "../services/api";
+import APIService from "../../services/api";
 
 export const LiveSetup = ({
   onStartLiveSession,

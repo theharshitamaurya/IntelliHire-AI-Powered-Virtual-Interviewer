@@ -25,7 +25,7 @@ This guide walks you through deploying your IntelliHire Multimodal Analyzer to H
 
 1. Navigate to the "Files" tab in your new Space
 2. Click "Add file" → "Upload files"
-3. Upload these files from `huggingface-space/` directory:
+3. Upload these files from `deployment/huggingface-space/` directory:
    - `app.py`
    - `requirements.txt`
    - `README.md`
@@ -39,11 +39,11 @@ This guide walks you through deploying your IntelliHire Multimodal Analyzer to H
 git clone https://huggingface.co/spaces/YOUR_USERNAME/intellihire-analyzer
 cd intellihire-analyzer
 
-# Copy files from huggingface-space directory
-cp ../huggingface-space/app.py .
-cp ../huggingface-space/requirements.txt .
-cp ../huggingface-space/README.md .
-cp ../huggingface-space/.gitignore .
+# Copy files from deployment/huggingface-space directory
+cp ../deployment/huggingface-space/app.py .
+cp ../deployment/huggingface-space/requirements.txt .
+cp ../deployment/huggingface-space/README.md .
+cp ../deployment/huggingface-space/.gitignore .
 
 # Commit and push
 git add .
@@ -272,7 +272,7 @@ Then restart your backend. No code changes needed!
 ### Update Code
 
 ```bash
-cd huggingface-space/
+cd deployment/huggingface-space/
 git pull
 # Make changes to app.py or requirements.txt
 git add .

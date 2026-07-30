@@ -1,6 +1,6 @@
 # Backend Test Files
 
-This README lists only the project test files present in `backend/` (excluding dependencies).
+This README lists only the project test files present in `backend/tests/` (excluding dependencies).
 
 ## Total Test Files
 
@@ -16,8 +16,8 @@ This README lists only the project test files present in `backend/` (excluding d
 From `backend/`:
 
 ```bash
-node test-all-phase.js
-node test-python-integration.js
+node tests/test-all-phase.js
+node tests/test-python-integration.js
 ```
 
 ## Expected Output Example

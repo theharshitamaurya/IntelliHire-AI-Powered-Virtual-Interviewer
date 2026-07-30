@@ -1,25 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Layout } from "./components/Layout";
+import { Layout } from "./components/layout/Layout";
 import APIService from "./services/api";
+import { AppTab } from "./constants/tabs";
 
-const AppTab = {
-  Home: "home",
-  Practice: "practice",
-  JDMode: "jdmode",
-  Interview: "interview",
-  Analytics: "analytics",
-};
-
-import { PracticeMode } from "./components/PracticeMode";
-import { JDMode } from "./components/JDMode";
-import { LiveSetup } from "./components/LiveSetup";
-import { LiveSession } from "./components/LiveSession";
-import { Analytics } from "./components/Analytics";
+import { PracticeMode } from "./components/practice/PracticeMode";
+import { JDMode } from "./components/jd/JDMode";
+import { LiveSetup } from "./components/live/LiveSetup";
+import { LiveSession } from "./components/live/LiveSession";
+import { Analytics } from "./components/analytics/Analytics";
 import {
   installAutoFlush,
   track as trackEvent,
   flush,
-} from "./analytics/client";
+} from "./lib/analyticsClient";
 
 import {
   Brain,
@@ -612,7 +605,7 @@ const App = () => {
   };
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab} tabs={AppTab}>
+    <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
       {activeTab === AppTab.Home && (
         <div className="space-y-24 py-10 animate-in fade-in duration-1000">
           <section className="text-center space-y-12 max-w-5xl mx-auto">

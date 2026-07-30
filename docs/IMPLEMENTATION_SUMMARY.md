@@ -3,7 +3,7 @@
 ## ✅ What Was Completed
 
 ### 1. Hugging Face Space Files Created
-**Location:** `huggingface-space/`
+**Location:** `deployment/huggingface-space/`
 
 - **app.py** - Complete Gradio + FastAPI application with:
   - Audio analysis (librosa, spectral features, pitch, tempo)
@@ -51,7 +51,7 @@
   - Security considerations
 
 - **QUICKSTART_HF.md** - 5-minute quick start guide
-- **huggingface-space/README.md** - API documentation for your Space
+- **deployment/huggingface-space/README.md** - API documentation for your Space
 
 ---
 
@@ -74,7 +74,7 @@ This installs the new `axios` and `form-data` packages.
 # - Visibility: Public (or Private with Pro)
 # - Hardware: CPU basic (free)
 
-# Upload these files from huggingface-space/ folder:
+# Upload these files from deployment/huggingface-space/ folder:
 # - app.py
 # - requirements.txt
 # - README.md
@@ -177,17 +177,17 @@ Frontend → Backend → HTTP POST → Hugging Face Space → JSON
 
 ### New Files (9 total)
 ```
-huggingface-space/
+deployment/huggingface-space/
 ├── app.py                    # Gradio + FastAPI Space
 ├── requirements.txt          # Python dependencies
 ├── README.md                 # Space documentation
 ├── .gitignore               # Python gitignore
 └── .env.example             # Environment template
 
-backend/
+backend/tests/
 └── test-hf-space.js         # Integration test script
 
-Root/
+docs/
 ├── HUGGINGFACE_DEPLOYMENT.md # Full deployment guide
 ├── QUICKSTART_HF.md          # Quick start guide
 └── (session plan memory)     # Planning document

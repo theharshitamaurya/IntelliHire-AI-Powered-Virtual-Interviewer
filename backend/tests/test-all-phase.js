@@ -1,11 +1,11 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
-const { healthCheck: llmHealthCheck } = require("./services/llmService");
-const { checkPythonDependencies } = require("./services/pythonAnalyzer");
-const { healthCheck: jdHealthCheck } = require("./services/jdGroundedService");
-const Session = require("./models/Session");
-const InterviewResult = require("./models/InterviewResult");
-const JDHistory = require("./models/JDHistory");
+const { healthCheck: llmHealthCheck } = require("../services/llmService");
+const { checkPythonDependencies } = require("../services/pythonAnalyzer");
+const { healthCheck: jdHealthCheck } = require("../services/jdGroundedService");
+const Session = require("../models/Session");
+const InterviewResult = require("../models/InterviewResult");
+const JDHistory = require("../models/JDHistory");
 
 async function runFullTest() {
   console.log("═══════════════════════════════════════════════");

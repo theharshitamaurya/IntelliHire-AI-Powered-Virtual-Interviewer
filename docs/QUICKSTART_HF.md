@@ -7,7 +7,7 @@
 ```bash
 # Go to https://huggingface.co/spaces
 # Click "New Space" → Name: intellihire-analyzer → SDK: Gradio → Create
-# Upload files from huggingface-space/ folder
+# Upload files from deployment/huggingface-space/ folder
 ```
 
 ### 2. Configure Backend (1 minute)
@@ -70,9 +70,9 @@ Expected response: JSON with `audio` and `video` analysis results.
 ## What Files Were Changed?
 
 ### New Files Created:
-- ✅ `huggingface-space/app.py` - Gradio + FastAPI Space app
-- ✅ `huggingface-space/requirements.txt` - Python dependencies
-- ✅ `huggingface-space/README.md` - Space documentation
+- ✅ `deployment/huggingface-space/app.py` - Gradio + FastAPI Space app
+- ✅ `deployment/huggingface-space/requirements.txt` - Python dependencies
+- ✅ `deployment/huggingface-space/README.md` - Space documentation
 - ✅ `HUGGINGFACE_DEPLOYMENT.md` - Full deployment guide (you're reading the quick version!)
 
 ### Modified Files:
@@ -132,7 +132,7 @@ No code changes required! Just restart backend.
 ## Full Documentation
 
 - **Deployment Guide**: [HUGGINGFACE_DEPLOYMENT.md](./HUGGINGFACE_DEPLOYMENT.md)
-- **Space README**: [huggingface-space/README.md](./huggingface-space/README.md)
+- **Space README**: [huggingface-space/README.md](../deployment/huggingface-space/README.md)
 - **API Documentation**: See README in your deployed Space
 
 ---
@@ -146,7 +146,7 @@ No code changes required! Just restart backend.
 
 **Want to test locally first?**
 ```bash
-cd huggingface-space
+cd deployment/huggingface-space
 pip install -r requirements.txt
 python app.py
 # Visit http://localhost:7860

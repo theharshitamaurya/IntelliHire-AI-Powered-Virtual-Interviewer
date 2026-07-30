@@ -6,14 +6,7 @@ import {
   Target,
   MessageSquare,
 } from "lucide-react";
-
-const AppTab = {
-  Home: "home",
-  Practice: "practice",
-  JDMode: "jdmode",
-  Interview: "interview",
-  Analytics: "analytics",
-};
+import { AppTab } from "../../constants/tabs";
 
 export const Layout = ({ activeTab, setActiveTab, children }) => {
   const tabs = [

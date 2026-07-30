@@ -36,9 +36,11 @@ It solves the common problem of generic mock interview tools by grounding questi
 ## Project Structure
 
 - `backend/` - Node.js/Express API, MongoDB models, processing services
-- `frontend/` - React/Vite web app and analytics UI
-- `analyzer/` - Python analysis scripts and dataset exports
-- `paper draft/` - manuscript assets
+  - `backend/tests/` - manual integration test scripts
+- `frontend/` - React/Vite web app, organized by feature (`components/practice`, `components/jd`, `components/live`, `components/analytics`, `components/layout`)
+- `ml-service/` - Python analysis scripts, dataset exports, and the training pipeline
+- `deployment/` - Hugging Face Space deployment sources
+- `docs/` - deployment guides, diagrams, screenshots, and manuscript assets
 
 ## Installation Instructions
 
@@ -73,10 +75,10 @@ Create `frontend/.env`:
 VITE_API_BASE_URL=http://localhost:5000/api
 ```
 
-### 4) Install analyzer dependencies
+### 4) Install ml-service dependencies
 
 ```bash
-cd ../analyzer
+cd ../ml-service
 pip install -r requirements.txt
 ```
 
@@ -121,14 +123,14 @@ npm run dev
 
 ```bash
 cd backend
-node test-all-phase.js
-node test-python-integration.js
+node tests/test-all-phase.js
+node tests/test-python-integration.js
 ```
 
 ### Run IEEE statistics analysis
 
 ```bash
-cd analyzer
+cd ml-service
 python IEEEsession_analysis.py
 ```
 
@@ -144,24 +146,25 @@ Expected output includes:
 
 ### System diagrams
 
-![Architecture Diagram](images/architecture.png)
-![Deployment Diagram](images/deploayment%20diagram.jpeg)
-![Use Case Diagram](images/use-case%20diagram.jpeg)
-![Tech Stack](images/tech%20stack.jpeg)
+![Architecture Diagram](docs/images/architecture.png)
+![Deployment Diagram](docs/images/deploayment%20diagram.jpeg)
+![Use Case Diagram](docs/images/use-case%20diagram.jpeg)
+![Tech Stack](docs/images/tech%20stack.jpeg)
 
 ### Product screenshots
 
-![Home Page](images/HomePage.png)
-![Practice Drill](images/PracticeDrill.png)
-![Grounded JD Analysis](images/GroundedJDAnalysis.png)
-![Live Teacher Simulation](images/LiveTeacherSimulation.png)
-![Analytics Dashboard](images/AnalyticsDashboard.png)
+![Home Page](docs/images/HomePage.png)
+![Practice Drill](docs/images/PracticeDrill.png)
+![Grounded JD Analysis](docs/images/GroundedJDAnalysis.png)
+![Live Teacher Simulation](docs/images/LiveTeacherSimulation.png)
+![Analytics Dashboard](docs/images/AnalyticsDashboard.png)
 
 ## Documentation
 
-- Backend tests: [backend/TEST_FILES_README.md](/D:/harshita/university/major-project/code/intellihirev17/intellihirev17/backend/TEST_FILES_README.md)
-- Analyzer usage: [analyzer/README.md](/D:/harshita/university/major-project/code/intellihirev17/intellihirev17/analyzer/README.md)
-- Frontend usage: [frontend/README.md](/D:/harshita/university/major-project/code/intellihirev17/intellihirev17/frontend/README.md)
+- Backend tests: [backend/tests/README.md](backend/tests/README.md)
+- ML service usage: [ml-service/README.md](ml-service/README.md)
+- Frontend usage: [frontend/README.md](frontend/README.md)
+- Hugging Face Space deployment: [docs/HUGGINGFACE_DEPLOYMENT.md](docs/HUGGINGFACE_DEPLOYMENT.md) / [docs/QUICKSTART_HF.md](docs/QUICKSTART_HF.md)
 
 ## Roadmap
 

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import APIService from "../services/api";
+import APIService from "../../services/api";
 
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
 const clamp100 = (x) => Math.max(0, Math.min(100, Number(x) || 0));

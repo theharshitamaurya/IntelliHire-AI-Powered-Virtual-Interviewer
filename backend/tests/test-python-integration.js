@@ -8,7 +8,7 @@
 const {
   callPythonAnalyzer,
   checkPythonDependencies,
-} = require("./services/pythonAnalyzer");
+} = require("../services/pythonAnalyzer");
 const path = require("path");
 const fs = require("fs");
 
@@ -65,7 +65,7 @@ async function testIntegration() {
 
   const pythonScriptPath = path.join(
     __dirname,
-    "../analyzer/multimodal_analyzer.py",
+    "../../ml-service/multimodal_analyzer.py",
   );
 
   if (fs.existsSync(pythonScriptPath)) {
@@ -74,7 +74,7 @@ async function testIntegration() {
   } else {
     error("Python script not found");
     warn(`Expected location: ${pythonScriptPath}`);
-    warn("Copy python-analyzer-cli.py to analyzer/multimodal_analyzer.py");
+    warn("Copy python-analyzer-cli.py to ml-service/multimodal_analyzer.py");
     process.exit(1);
   }
 
@@ -82,7 +82,7 @@ async function testIntegration() {
 
   console.log("TEST 3: Testing Audio Analysis...");
 
-  const uploadsDir = path.join(__dirname, "uploads");
+  const uploadsDir = path.join(__dirname, "..", "uploads");
 
   if (!fs.existsSync(uploadsDir)) {
     warn("Uploads directory does not exist, creating...");
