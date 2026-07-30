@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const path = require("path");
+const fs = require("fs");
 const interviewRoutes = require("./routes/interviewRoutes");
 const jdRoutes = require("./routes/jdRoutes");
 const questionRoutes = require("./routes/questionRoutes");
@@ -34,6 +36,20 @@ app.get("/api/health", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Serve the frontend production build when present (e.g. the Docker image
+// built for Hugging Face Spaces). Absent in local dev, where the frontend
+// runs on its own Vite dev server, so this is a no-op there.
+const frontendDistPath = path.join(__dirname, "../frontend/dist");
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDistPath, "index.html"));
+  });
+}
 
 app.use((err, req, res, next) => {
   console.error("Error:", err);

@@ -1,0 +1,15 @@
+# Used when building deployment/huggingface-app/Dockerfile from the repo root.
+.git/
+docs/
+ml-service/
+deployment/huggingface-space/
+deployment/hf-space-template/
+
+**/node_modules/
+frontend/dist/
+backend/uploads/*
+!backend/uploads/.gitkeep
+**/.env
+**/.env.*
+!**/.env.example
+*.md

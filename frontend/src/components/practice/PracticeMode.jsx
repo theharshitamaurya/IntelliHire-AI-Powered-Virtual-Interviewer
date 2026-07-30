@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import {
-  MessageSquare,
-  Send,
   RefreshCw,
   BookOpen,
   Plus,
   Loader2,
   Brain,
   CheckCircle2,
-  Sparkles,
   Trophy,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";

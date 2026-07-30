@@ -13,20 +13,6 @@ class APIService {
     });
   }
 
-  async generateJDFromText(jdText, resumeText) {
-    return this.request("jds/generate", {
-      method: "POST",
-      body: JSON.stringify({ jdText, resumeText }),
-    });
-  }
-
-  async generateJD(jdText, resumeText) {
-    return this.request("jds/generate", {
-      method: "POST",
-      body: JSON.stringify({ jdText, resumeText }),
-    });
-  }
-
   async generatePracticeQuestions(topic, count = 3, persona = "technical") {
     return this.request("/questions/generate-practice", {
       method: "POST",
@@ -149,34 +135,6 @@ class APIService {
     );
   }
 
-  async bootstrapPracticeSession(questionText) {
-    const jd = await this.createJD({
-      jobTitle: "Practice Mode",
-      company: "Self-Practice",
-      requiredSkills: ["general"],
-      experienceLevel: "unspecified",
-      source: "manual",
-      description: "Practice session for standalone question practice",
-    });
-
-    const q = await this.createQuestion({
-      questionText: String(questionText || "Tell me about yourself"),
-      difficulty: "medium",
-      relatedSkills: ["general"],
-      jdId: jd._id,
-      category: "general",
-      source: "manual",
-    });
-
-    const session = await this.createSession({
-      jobDescriptionId: jd._id,
-      mode: "practice",
-      questionIds: [q._id],
-    });
-
-    return { sessionId: session.sessionId, questionId: q._id, jdId: jd._id };
-  }
-
   async createInterviewResult(data) {
     const formData = new FormData();
 
@@ -230,25 +188,6 @@ class APIService {
     return this.request("interviews", { method: "POST", body: formData });
   }
 
-  async submitInterviewWithLLM(interviewData) {
-    let ensured = { ...interviewData };
-
-    if (!ensured.sessionId || !ensured.questionId) {
-      const boot = await this.bootstrapPracticeSession(ensured.question);
-      ensured = {
-        ...ensured,
-        sessionId: boot.sessionId,
-        questionId: boot.questionId,
-        jdId: ensured.jdId || boot.jdId,
-      };
-    }
-
-    return this.createInterviewResult({
-      ...ensured,
-      useLLM: true,
-    });
-  }
-
   async getAllInterviews(params = {}) {
     const queryString = new URLSearchParams(params).toString();
     const endpoint = `/interviews${queryString ? "?" + queryString : ""}`;
@@ -271,20 +210,6 @@ class APIService {
 
   async getIEEESummary() {
     return this.request(`/interviews/ieee-summary`);
-  }
-
-  async getSessionComparison(sessionId) {
-    return this.request(`/analytics/compare/${encodeURIComponent(sessionId)}`);
-  }
-
-  async getPercentile(sessionId) {
-    return this.request(
-      `/analytics/percentile/${encodeURIComponent(sessionId)}`,
-    );
-  }
-
-  async getTrend(userId) {
-    return this.request(`/analytics/trend/${encodeURIComponent(userId)}`);
   }
 }
 

@@ -164,7 +164,8 @@ Expected output includes:
 - Backend tests: [backend/tests/README.md](backend/tests/README.md)
 - ML service usage: [ml-service/README.md](ml-service/README.md)
 - Frontend usage: [frontend/README.md](frontend/README.md)
-- Hugging Face Space deployment: [docs/HUGGINGFACE_DEPLOYMENT.md](docs/HUGGINGFACE_DEPLOYMENT.md) / [docs/QUICKSTART_HF.md](docs/QUICKSTART_HF.md)
+- Hugging Face Space deployment (analyzer only): [docs/HUGGINGFACE_DEPLOYMENT.md](docs/HUGGINGFACE_DEPLOYMENT.md) / [docs/QUICKSTART_HF.md](docs/QUICKSTART_HF.md)
+- Hugging Face Space deployment (full app, Docker): [deployment/huggingface-app/README.md](deployment/huggingface-app/README.md)
 
 ## Roadmap
 

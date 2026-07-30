@@ -1,6 +1,9 @@
 # Core dependencies
+# Gradio is intentionally NOT pinned here: the Space's Gradio SDK runtime
+# (sdk_version in README.md) provisions its own gradio install, and also
+# listing a gradio== pin in requirements.txt conflicts with that and breaks
+# the build.
 setuptools>=65.0.0
-gradio==5.20.1
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 python-multipart>=0.0.6
@@ -11,7 +14,7 @@ soundfile>=0.12.0
 audioread>=3.0.0
 
 # Video processing
-opencv-python>=4.8.0
+opencv-python-headless>=4.8.0
 mediapipe>=0.10.0
 
 # Scientific computing

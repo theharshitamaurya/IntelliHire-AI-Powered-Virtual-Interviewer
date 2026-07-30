@@ -13,7 +13,6 @@ import {
 import APIService from "../../services/api";
 
 import mammoth from "mammoth";
-import { track as trackEvent } from "../../lib/analyticsClient";
 
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 

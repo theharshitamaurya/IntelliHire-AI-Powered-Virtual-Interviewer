@@ -2,6 +2,10 @@
 
 This guide walks you through deploying your IntelliHire Multimodal Analyzer to Hugging Face Spaces and integrating it with your backend.
 
+> This covers the **analyzer only** (audio/video ML service). To deploy the
+> full app (frontend + backend) as its own Docker Space, see
+> [deployment/huggingface-app/README.md](../deployment/huggingface-app/README.md).
+
 ## Step 1: Create a Hugging Face Account
 
 1. Go to [Hugging Face](https://huggingface.co/) and sign up for a free account

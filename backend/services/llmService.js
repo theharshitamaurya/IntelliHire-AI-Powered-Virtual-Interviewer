@@ -329,96 +329,9 @@ async function evaluateResponse(transcript, question, jobDescription = null) {
   }
 }
 
-/**
- * Batch evaluate multiple responses (for analytics)
- * @param {Array<{transcript:string, question:string, jobDescription?:Object}>} responses
- * @returns {Promise<Array>}
- */
-async function batchEvaluate(responses) {
-  const arr = Array.isArray(responses) ? responses : [];
-  const evaluations = [];
-
-  for (const item of arr) {
-    const result = await evaluateResponse(
-      item?.transcript,
-      item?.question,
-      item?.jobDescription ?? null,
-    );
-    evaluations.push(result);
-
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-
-  return evaluations;
-}
-async function runTeacherEvaluationWithRAG({ question, answer, retrieved }) {
-  const contextBlocks = retrieved
-    .map((c, idx) => `[#${idx}] [source=${c.source}] [id=${c.id}]\n${c.text}\n`)
-    .join("\n\n");
-
-  const systemPrompt = `
-You are an interview coach. You MUST ground all factual claims in the retrieved evidence blocks.
-When you give feedback, attach citations to evidence ids, like [#0], [#3], etc.
-
-If the candidate says something that is not supported or is contradicted by the evidence, flag it explicitly as "ungrounded".
-Return STRICT JSON with this schema:
-
-{
-  "overallScore": number,           // 0-100
-  "status": "correct" | "partial" | "incorrect",
-  "feedback": string,              // include [#id] citations inline
-  "competencies": {
-    "technical": number,           // 0-100
-    "clarity": number,
-    "confidence": number,
-    "conciseness": number,
-    "engagement": number
-  },
-  "followUpQuestion": string,
-  "grounding": {
-    "citations": [
-      {
-        "span": string,           // short feedback span
-        "chunkIds": [string]      // e.g. ["jd-skill-2", "rubric-..."]
-      }
-    ]
-  }
-}
-`;
-
-  const userPrompt = `
-QUESTION:
-${question}
-
-CANDIDATE ANSWER:
-${answer}
-
-RETRIEVED EVIDENCE:
-${contextBlocks}
-`;
-
-  const { parsed } = await callGroqJson(systemPrompt, userPrompt);
-  return parsed || {
-    overallScore: 50,
-    status: "partial",
-    feedback: "Could not evaluate response with grounding.",
-    competencies: {
-      technical: 50,
-      clarity: 50,
-      confidence: 50,
-      conciseness: 50,
-      engagement: 50,
-    },
-    followUpQuestion: "",
-    grounding: { citations: [] },
-  };
-}
-
 module.exports = {
   callGroqJson,
   evaluateResponse,
-  batchEvaluate,
   healthCheck,
   generatePracticeQuestions,
-  runTeacherEvaluationWithRAG,
 };

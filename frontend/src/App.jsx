@@ -22,7 +22,6 @@ import {
   Activity,
   ShieldCheck,
 } from "lucide-react";
-import { motion } from "framer-motion";
 
 const App = () => {
   const analyticsBatchEndpoint = (() => {
@@ -34,27 +33,6 @@ const App = () => {
   const [interviewResults, setInterviewResults] = useState([]);
   const [jdHistory, setJdHistory] = useState([]);
   const [questionHistory, setQuestionHistory] = useState([]);
-  const [liveStage, setLiveStage] = useState("setup");
-  const [sessionQuestions, setSessionQuestions] = useState([]);
-  const [livePersona, setLivePersona] = useState("technical");
-  const startLiveSession = ({ questions, persona }) => {
-    setSessionQuestions(questions);
-    setLivePersona(persona);
-    setLiveStage("session");
-    setActiveTab(AppTab.Interview);
-  };
-
-  const stopLiveSession = () => {
-    setLiveStage("setup");
-    setSessionQuestions([]);
-  };
-  const onSearch = (query, resultsCount) => {
-    trackEvent("search", { query, resultsCount });
-  };
-
-  const onClickResult = (docId, rank) => {
-    trackEvent("click_result", { docId, rank });
-  };
 
   const [interviewFlow, setInterviewFlow] = useState({
     mode: null,
@@ -688,8 +666,6 @@ const App = () => {
           onLogJD={logJD}
           onLogQuestion={logQuestion}
           onStartJDSetup={startJDSetup}
-          onSearch={onSearch}
-          onClickResult={onClickResult}
         />
       )}
 

@@ -4,7 +4,7 @@ emoji: 🎤
 colorFrom: blue
 colorTo: purple
 sdk: gradio
-sdk_version: 4.0.0
+sdk_version: 5.20.1
 app_file: app.py
 pinned: false
 license: mit
@@ -70,13 +70,17 @@ Response:
     "overallVoiceScore": 83.9
   },
   "video": {
-    "eye_contact_ratio": 0.75,
-    "head_stability": 85.0,
+    "total_frames": 240,
+    "eye_contact_frames": 180,
     "eyeContact": 75.0,
-    "professionalism": 82.5,
+    "headStability": 85.0,
+    "postureScore": 82.0,
+    "gestureIntensity": 55.0,
     "engagement": 80.0,
-    "gestures": 65.0,
-    "overallVideoScore": 76.9
+    "professionalism": 82.5,
+    "confidence": 78.5,
+    "overallFacialScore": 79.4,
+    "engagementScore": 80.0
   },
   "error": null
 }

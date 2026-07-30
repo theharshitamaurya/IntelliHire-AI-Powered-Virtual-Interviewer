@@ -23,6 +23,24 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 # Initialize FastAPI
 app = FastAPI()
 
+# Load MediaPipe models once at startup instead of per-request.
+# Re-creating FaceMesh/Pose on every /analyze call (the previous behavior)
+# added model-init overhead to every request; a single shared instance is
+# the standard approach for a single-worker Space process like this one.
+mp_face_mesh = mp.solutions.face_mesh
+mp_pose = mp.solutions.pose
+
+face_mesh = mp_face_mesh.FaceMesh(
+    max_num_faces=1,
+    refine_landmarks=True,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
+pose = mp_pose.Pose(
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
+
 
 # ========== Helper Functions ==========
 
@@ -189,244 +207,239 @@ def get_default_audio_features():
 
 def extract_video_features(video_path):
     """
-    Extract comprehensive video features using MediaPipe:
-    - Eye contact, head pose, engagement, gestures
+    Extract video features as described in paper:
+    - Eye contact score
+    - Head pose stability
+    - Posture score
+    - Gesture intensity
+
+    Mirrors ml-service/multimodal_analyzer.py exactly so the Space produces
+    the same output as the local analyzer (same algorithm, same field names).
     """
     try:
-        mp_face_mesh = mp.solutions.face_mesh
-        mp_pose = mp.solutions.pose
-        
         cap = cv2.VideoCapture(video_path)
-        
+
         if not cap.isOpened():
             raise Exception("Could not open video file")
-        
+
         total_frames = 0
         eye_contact_frames = 0
         head_angles = []
         posture_scores = []
         gesture_magnitudes = []
         engagement_indicators = []
-        
-        with mp_face_mesh.FaceMesh(
-            max_num_faces=1,
-            refine_landmarks=True,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5
-        ) as face_mesh, mp_pose.Pose(
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5
-        ) as pose:
-            
-            prev_hand_landmarks = None
-            
-            while cap.isOpened():
-                ret, frame = cap.read()
-                if not ret:
-                    break
-                
-                total_frames += 1
-                
-                # Convert to RGB
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                h, w, _ = frame.shape
-                
-                # Process face
-                face_results = face_mesh.process(frame_rgb)
-                
-                if face_results.multi_face_landmarks:
-                    face_landmarks = face_results.multi_face_landmarks[0]
-                    
-                    # Eye contact detection
-                    eye_contact = detect_eye_contact(face_landmarks, w, h)
-                    if eye_contact:
-                        eye_contact_frames += 1
-                    
-                    # Head pose estimation
-                    head_angle = estimate_head_pose(face_landmarks, w, h)
-                    if head_angle is not None:
-                        head_angles.append(head_angle)
-                    
-                    # Engagement (facial expressiveness)
-                    engagement = calculate_facial_engagement(face_landmarks)
-                    engagement_indicators.append(engagement)
-                
-                # Process pose
-                pose_results = pose.process(frame_rgb)
-                
-                if pose_results.pose_landmarks:
-                    # Posture evaluation
-                    posture = evaluate_posture(pose_results.pose_landmarks)
-                    posture_scores.append(posture)
-                    
-                    # Gesture detection
-                    gesture_mag = calculate_gesture_magnitude(
-                        pose_results.pose_landmarks, prev_hand_landmarks
-                    )
-                    if gesture_mag is not None:
-                        gesture_magnitudes.append(gesture_mag)
-                    
-                    prev_hand_landmarks = pose_results.pose_landmarks
-        
+
+        prev_hand_landmarks = None
+
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            total_frames += 1
+
+            # Convert to RGB
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            h, w, _ = frame.shape
+
+            # Process face
+            face_results = face_mesh.process(frame_rgb)
+
+            if face_results.multi_face_landmarks:
+                face_landmarks = face_results.multi_face_landmarks[0]
+
+                # Eye contact detection (gaze direction)
+                eye_contact = detect_eye_contact(face_landmarks, w, h)
+                if eye_contact:
+                    eye_contact_frames += 1
+
+                # Head pose estimation
+                head_angle = estimate_head_pose(face_landmarks, w, h)
+                if head_angle is not None:
+                    head_angles.append(head_angle)
+
+                # Engagement (facial expressiveness)
+                engagement = calculate_facial_engagement(face_landmarks)
+                engagement_indicators.append(engagement)
+
+            # Process body pose
+            pose_results = pose.process(frame_rgb)
+
+            if pose_results.pose_landmarks:
+                landmarks = pose_results.pose_landmarks.landmark
+
+                # Posture score
+                posture = calculate_posture_score(landmarks)
+                posture_scores.append(posture)
+
+                # Gesture intensity (hand movement)
+                hand_landmarks = extract_hand_landmarks(landmarks)
+                if prev_hand_landmarks is not None:
+                    movement = calculate_movement(prev_hand_landmarks, hand_landmarks)
+                    gesture_magnitudes.append(movement)
+                prev_hand_landmarks = hand_landmarks
+
+            # Sample every 5 frames for performance
+            if total_frames % 5 == 0:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, cap.get(cv2.CAP_PROP_POS_FRAMES) + 4)
+
         cap.release()
-        
-        # Calculate summary metrics
-        eye_contact_ratio = eye_contact_frames / total_frames if total_frames > 0 else 0
-        head_stability = 100 - (np.std(head_angles) if head_angles else 0)
-        head_stability = max(0, min(100, head_stability))
-        
-        avg_posture = np.mean(posture_scores) if posture_scores else 75
-        avg_engagement = np.mean(engagement_indicators) if engagement_indicators else 75
-        avg_gesture = np.mean(gesture_magnitudes) if gesture_magnitudes else 50
-        
-        # Calculate derived scores
-        eye_contact_score = eye_contact_ratio * 100
-        professionalism_score = (head_stability * 0.4 + avg_posture * 0.6)
-        engagement_score = avg_engagement
-        gesture_score = normalize_to_100(avg_gesture, 20, 80)
-        
-        overall_video_score = (
-            eye_contact_score * 0.3 +
-            professionalism_score * 0.3 +
-            engagement_score * 0.25 +
-            gesture_score * 0.15
-        )
-        
+
+        # Calculate final metrics
+        eye_contact_score = (eye_contact_frames / total_frames * 100) if total_frames > 0 else 70
+        head_stability = 100 - min(100, np.std(head_angles) * 10) if head_angles else 75
+        posture_score = np.mean(posture_scores) if posture_scores else 75
+        gesture_intensity = np.mean(gesture_magnitudes) if gesture_magnitudes else 50
+        engagement_score = np.mean(engagement_indicators) if engagement_indicators else 70
+
+        # Professionalism (composite)
+        professionalism_score = (eye_contact_score * 0.4 + head_stability * 0.3 +
+                                posture_score * 0.3)
+
+        # Overall facial score
+        overall_facial_score = (eye_contact_score * 0.3 + engagement_score * 0.3 +
+                               professionalism_score * 0.4)
+
         return {
             # Raw features
-            'eye_contact_ratio': float(eye_contact_ratio),
-            'head_stability': float(head_stability),
-            'avg_head_angle': float(np.mean(head_angles)) if head_angles else 0,
-            'posture_score': float(avg_posture),
-            'gesture_magnitude': float(avg_gesture),
-            'facial_engagement': float(avg_engagement),
-            'total_frames': int(total_frames),
-            
-            # Derived scores (MongoDB fields)
+            'total_frames': total_frames,
+            'eye_contact_frames': eye_contact_frames,
+            'head_angle_std': float(np.std(head_angles)) if head_angles else 0,
+            'gesture_mean': float(np.mean(gesture_magnitudes)) if gesture_magnitudes else 0,
+
+            # MongoDB fields
             'eyeContact': round(eye_contact_score, 2),
-            'professionalism': round(professionalism_score, 2),
+            'headStability': round(head_stability, 2),
+            'postureScore': round(posture_score, 2),
+            'gestureIntensity': round(gesture_intensity, 2),
             'engagement': round(engagement_score, 2),
-            'gestures': round(gesture_score, 2),
-            'overallVideoScore': round(overall_video_score, 2)
+            'professionalism': round(professionalism_score, 2),
+            'confidence': round((eye_contact_score + posture_score) / 2, 2),
+            'overallFacialScore': round(overall_facial_score, 2),
+            'engagementScore': round(engagement_score, 2)
         }
-        
+
     except Exception as e:
         print(f"Video extraction error: {str(e)}")
         return get_default_video_features()
 
 
-def detect_eye_contact(face_landmarks, width, height):
-    """Detect if person is looking at camera"""
-    try:
-        # Get eye landmarks (simplified)
-        left_eye = face_landmarks.landmark[468]  # Left iris center
-        right_eye = face_landmarks.landmark[473]  # Right iris center
-        
-        # Check if eyes are centered (looking forward)
-        eye_center_threshold = 0.15
-        left_centered = abs(left_eye.x - 0.3) < eye_center_threshold
-        right_centered = abs(right_eye.x - 0.7) < eye_center_threshold
-        
-        return left_centered and right_centered
-    except:
-        return False
+def detect_eye_contact(face_landmarks, frame_width, frame_height):
+    """Detect if person is looking at camera (forward gaze)"""
+    # Use iris landmarks (468-473 for left iris, 473-478 for right iris)
+    # Simplified: check if eyes are visible and centered
+
+    left_eye = [33, 133, 160, 159, 158, 157, 173]
+    right_eye = [362, 263, 387, 386, 385, 384, 398]
+
+    left_eye_coords = [(face_landmarks.landmark[i].x, face_landmarks.landmark[i].y)
+                       for i in left_eye]
+    right_eye_coords = [(face_landmarks.landmark[i].x, face_landmarks.landmark[i].y)
+                        for i in right_eye]
+
+    left_center_x = np.mean([c[0] for c in left_eye_coords])
+    right_center_x = np.mean([c[0] for c in right_eye_coords])
+
+    # Eyes should be roughly equidistant from center (0.5)
+    eye_symmetry = abs((left_center_x + right_center_x) / 2 - 0.5)
+
+    # Forward gaze: symmetry < 0.1
+    return eye_symmetry < 0.1
 
 
-def estimate_head_pose(face_landmarks, width, height):
+def estimate_head_pose(face_landmarks, frame_width, frame_height):
     """Estimate head rotation angle"""
-    try:
-        # Use nose and chin landmarks
-        nose = face_landmarks.landmark[1]
-        chin = face_landmarks.landmark[152]
-        
-        # Calculate angle from vertical
-        dx = (nose.x - chin.x) * width
-        dy = (nose.y - chin.y) * height
-        angle = abs(np.degrees(np.arctan2(dx, dy)))
-        
-        return angle
-    except:
-        return None
+    nose_tip = face_landmarks.landmark[1]
+    chin = face_landmarks.landmark[152]
+    left_cheek = face_landmarks.landmark[234]
+    right_cheek = face_landmarks.landmark[454]
+
+    dx = (right_cheek.x - left_cheek.x) * frame_width
+    dy = (right_cheek.y - left_cheek.y) * frame_height
+
+    angle = np.degrees(np.arctan2(dy, dx))
+
+    # Normalize to 0-90 range (deviation from center)
+    return abs(angle - 0)
 
 
 def calculate_facial_engagement(face_landmarks):
-    """Calculate facial expressiveness score"""
-    try:
-        # Measure mouth openness variation (more expression = more variation)
-        mouth_top = face_landmarks.landmark[13]
-        mouth_bottom = face_landmarks.landmark[14]
-        mouth_open = abs(mouth_top.y - mouth_bottom.y)
-        
-        # Simple engagement metric
-        engagement = normalize_to_100(mouth_open, 0.01, 0.08)
-        return engagement
-    except:
-        return 75.0
+    """Calculate engagement from facial expressiveness"""
+    # Mouth landmarks
+    upper_lip = face_landmarks.landmark[13].y
+    lower_lip = face_landmarks.landmark[14].y
+    mouth_open = abs(upper_lip - lower_lip)
+
+    # Eyebrow landmarks
+    left_eyebrow = face_landmarks.landmark[70].y
+    right_eyebrow = face_landmarks.landmark[300].y
+    eyebrow_avg = (left_eyebrow + right_eyebrow) / 2
+
+    # Score based on expressiveness
+    expressiveness = (mouth_open + abs(eyebrow_avg - 0.4)) * 100
+
+    return min(100, max(50, expressiveness * 50))
 
 
-def evaluate_posture(pose_landmarks):
-    """Evaluate posture quality"""
-    try:
-        # Check shoulder alignment
-        left_shoulder = pose_landmarks.landmark[11]
-        right_shoulder = pose_landmarks.landmark[12]
-        
-        # Shoulder levelness
-        shoulder_diff = abs(left_shoulder.y - right_shoulder.y)
-        levelness_score = 100 - (shoulder_diff * 1000)
-        levelness_score = max(0, min(100, levelness_score))
-        
-        # Upright posture (spine alignment)
-        nose = pose_landmarks.landmark[0]
-        mid_shoulder_y = (left_shoulder.y + right_shoulder.y) / 2
-        upright_score = normalize_to_100(abs(nose.y - mid_shoulder_y), 0.2, 0.5)
-        
-        return (levelness_score + upright_score) / 2
-    except:
-        return 75.0
+def calculate_posture_score(landmarks):
+    """Calculate posture from shoulder and hip alignment"""
+    left_shoulder = landmarks[mp.solutions.pose.PoseLandmark.LEFT_SHOULDER.value]
+    right_shoulder = landmarks[mp.solutions.pose.PoseLandmark.RIGHT_SHOULDER.value]
+
+    # Calculate shoulder alignment (should be horizontal)
+    shoulder_slope = abs(left_shoulder.y - right_shoulder.y)
+
+    # Good posture: slope < 0.05
+    posture_score = 100 - min(100, shoulder_slope * 1000)
+
+    # Check if shoulders are visible (not out of frame)
+    if left_shoulder.visibility < 0.5 or right_shoulder.visibility < 0.5:
+        posture_score *= 0.8
+
+    return max(0, posture_score)
 
 
-def calculate_gesture_magnitude(pose_landmarks, prev_landmarks):
+def extract_hand_landmarks(landmarks):
+    """Extract hand positions for gesture tracking"""
+    left_wrist = landmarks[mp.solutions.pose.PoseLandmark.LEFT_WRIST.value]
+    right_wrist = landmarks[mp.solutions.pose.PoseLandmark.RIGHT_WRIST.value]
+
+    return {
+        'left': (left_wrist.x, left_wrist.y, left_wrist.z),
+        'right': (right_wrist.x, right_wrist.y, right_wrist.z)
+    }
+
+
+def calculate_movement(prev_landmarks, curr_landmarks):
     """Calculate hand movement magnitude"""
-    try:
-        if prev_landmarks is None:
-            return None
-        
-        # Track hand movement
-        curr_left_hand = pose_landmarks.landmark[15]
-        curr_right_hand = pose_landmarks.landmark[16]
-        prev_left_hand = prev_landmarks.landmark[15]
-        prev_right_hand = prev_landmarks.landmark[16]
-        
-        left_movement = np.sqrt(
-            (curr_left_hand.x - prev_left_hand.x)**2 +
-            (curr_left_hand.y - prev_left_hand.y)**2
-        )
-        right_movement = np.sqrt(
-            (curr_right_hand.x - prev_right_hand.x)**2 +
-            (curr_right_hand.y - prev_right_hand.y)**2
-        )
-        
-        return (left_movement + right_movement) * 100
-    except:
-        return None
+    left_dist = np.linalg.norm(
+        np.array(curr_landmarks['left']) - np.array(prev_landmarks['left'])
+    )
+    right_dist = np.linalg.norm(
+        np.array(curr_landmarks['right']) - np.array(prev_landmarks['right'])
+    )
+
+    # Normalize to 0-100 scale
+    movement = (left_dist + right_dist) * 100
+    return min(100, movement)
 
 
 def get_default_video_features():
     """Return default values if video analysis fails"""
     return {
-        'eye_contact_ratio': 0.7,
-        'head_stability': 80.0,
-        'avg_head_angle': 10.0,
-        'posture_score': 75.0,
-        'gesture_magnitude': 50.0,
-        'facial_engagement': 75.0,
         'total_frames': 0,
+        'eye_contact_frames': 0,
+        'head_angle_std': 0,
+        'gesture_mean': 0,
         'eyeContact': 70.0,
-        'professionalism': 77.5,
-        'engagement': 75.0,
-        'gestures': 62.5,
-        'overallVideoScore': 71.25
+        'headStability': 75.0,
+        'postureScore': 75.0,
+        'gestureIntensity': 50.0,
+        'engagement': 70.0,
+        'professionalism': 80.0,
+        'confidence': 75.0,
+        'overallFacialScore': 75.0,
+        'engagementScore': 70.0
     }
 
 
